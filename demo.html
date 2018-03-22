@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Implicit Grant Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link type="text/css" rel="stylesheet" href="//cloud.typography.com/75214/6517752/css/fonts.css" media="all" />
+    <link rel="stylesheet" href="https://cdn.byu.edu/byu-theme-components/latest/byu-theme-components.min.css" />
+    <script async src="https://cdn.byu.edu/byu-theme-components/latest/byu-theme-components.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script type="module">
+        import './src/byu-user-info-oauth.js';
+        import * as implicit from 'https://dev.cdn.byu.edu/browser-oauth-implicit/latest/implicit-grant.min.js';
+
+        implicit.configure({clientId: 'cSZPaC0Kvjfq1o0fwFTsXmP69lca'});
+    </script>
+</head>
+
+<body>
+    <byu-header>
+        <h1 slot="site-title">byu-user-info-oauth Demo</h1>
+
+        <byu-user-info-oauth slot="user"></byu-user-info-oauth>
+    </byu-header>
+
+</body>
+
+</html>
