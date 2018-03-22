@@ -39,7 +39,7 @@ export default class ByuUserInfoOAuth extends HTMLElement {
         if (user) {
             const el = hasUserElement ? userElement : this.ownerDocument.createElement('span');
             el.setAttribute('slot', 'user-name');
-            el.innerText = user.name.displayName;
+            el.innerText = user.name.givenName;
 
             if (!hasUserElement) {
                 this._userInfo.appendChild(el);
@@ -76,8 +76,6 @@ function renderEmpty(el) {
 
     userInfo.appendChild(signIn);
     userInfo.appendChild(signOut);
-
-    console.log('userInfo.children', userInfo.children);
 
     el.appendChild(userInfo);
 }
