@@ -1,12 +1,12 @@
 ---
-name: BYU Browser OAuth Implicit Grant
-description: BYU Implicit grant implementation
+name: BYU User Info - OAuth integration
+description: Decorator around byu-user-info that makes it oauth-aware
 resources:
   - src: dist/**
     dest: ./
 entrypoints:
-  implicit-grant.js: 'ES Module - implicit grant client'
-  implicit-grant.min.js: 'Minified - ES Module - implicit grant client'
-  implicit-grant.nomodule.js: 'Transpiled implicit grant client'
-  implicit-grant.nomodule.min.js: 'Minfied - Transpiled implicit grant client'
-docs: https://github.com/byuweb/byu-browser-oauth-implicit
+  byu-user-info-oauth.js: 'ES Module - OAuth User Sign In/Out Widget'
+  byu-user-info-oauth.min.js: 'ES Module - Minified - OAuth User Sign In/Out Widget'
+  byu-user-info-oauth.nomodule.js: 'No Module - OAuth User Sign In/Out Widget'
+  byu-user-info-oauth.nomodule.min.js: 'No Module - Minified - OAuth User Sign In/Out Widget'
+docs: https://github.com/byuweb/byu-user-info-oauth
