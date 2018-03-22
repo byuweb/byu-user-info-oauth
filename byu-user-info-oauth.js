@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as authn from '../node_modules/@byuweb/browser-oauth/byu-browser-oauth.js';
+import * as authn from './node_modules/@byuweb/browser-oauth/byu-browser-oauth.js';
 
 export default class ByuUserInfoOAuth extends HTMLElement {
     constructor() {

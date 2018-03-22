@@ -146,7 +146,7 @@ var ByuUserInfoOAuth = (function () {
             if (user$$1) {
                 var el = hasUserElement ? userElement : this.ownerDocument.createElement('span');
                 el.setAttribute('slot', 'user-name');
-                el.innerText = user$$1.name.displayName;
+                el.innerText = user$$1.name.givenName;
 
                 if (!hasUserElement) {
                     this._userInfo.appendChild(el);
@@ -185,8 +185,6 @@ var ByuUserInfoOAuth = (function () {
 
         userInfo.appendChild(signIn);
         userInfo.appendChild(signOut);
-
-        console.log('userInfo.children', userInfo.children);
 
         el.appendChild(userInfo);
     }

@@ -4,6 +4,7 @@ description: Decorator around byu-user-info that makes it oauth-aware
 resources:
   - src: dist/**
     dest: ./
+  - demo.html
 entrypoints:
   byu-user-info-oauth.js: 'ES Module - OAuth User Sign In/Out Widget'
   byu-user-info-oauth.min.js: 'ES Module - Minified - OAuth User Sign In/Out Widget'

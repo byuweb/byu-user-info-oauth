@@ -1,7 +1,7 @@
 import buble from 'rollup-plugin-buble';
 import uglify from 'rollup-plugin-uglify';
 
-const input = 'src/byu-user-info-oauth.js';
+const input = 'byu-user-info-oauth.js';
 const out = 'dist/byu-user-info-oauth';
 
 export default [
