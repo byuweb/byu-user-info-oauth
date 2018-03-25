@@ -1,6 +1,15 @@
 var ByuUserInfoOAuth = (function () {
     'use strict';
 
+    var EVENT_PREFIX = 'byu-browser-oauth';
+
+    var EVENT_STATE_CHANGE = EVENT_PREFIX + "-state-changed";
+    var EVENT_LOGIN_REQUESTED = EVENT_PREFIX + "-login-requested";
+    var EVENT_LOGOUT_REQUESTED = EVENT_PREFIX + "-logout-requested";
+    var EVENT_CURRENT_INFO_REQUESTED = EVENT_PREFIX + "-current-info-requested";
+    var STATE_UNAUTHENTICATED = 'unauthenticated';
+    var STATE_AUTHENTICATED = 'authenticated';
+
     /*
      * Copyright 2018 Brigham Young University
      *
@@ -17,58 +26,41 @@ var ByuUserInfoOAuth = (function () {
      * limitations under the License.
      */
 
-    var EVENT_PREFIX = 'byu-browser-oauth';
+    var AuthenticationObserver = function AuthenticationObserver(callback, ref ) {
+        if ( ref === void 0 ) ref = {};
+        var notifyCurrent = ref.notifyCurrent; if ( notifyCurrent === void 0 ) notifyCurrent = true;
 
-    var STATE_CHANGE_EVENT = EVENT_PREFIX + "-state-changed";
-    var LOGIN_REQUESTED_EVENT = EVENT_PREFIX + "-login-requested";
-    var LOGOUT_REQUESTED_EVENT = EVENT_PREFIX + "-logout-requested";
-    var STATE_REQUESTED_EVENT = EVENT_PREFIX + "-state-requested";
-
-    var STATE_INDETERMINATE = 'indeterminate';
-    var STATE_UNAUTHENTICATED = 'unauthenticated';
-    var STATE_AUTHENTICATED = 'authenticated';
-
-    var store = {state: STATE_INDETERMINATE};
-
-    var observer = onStateChange(function (detail) {
-        store = detail;
-    });
-
-    function onStateChange(callback) {
-        var func = function(e) {
+        this._listener = function (e) {
             callback(e.detail);
         };
-        document.addEventListener(STATE_CHANGE_EVENT, func, false);
-        if (store.state === STATE_INDETERMINATE) {
-            dispatch(STATE_REQUESTED_EVENT, {callback: callback});
-        } else {
-            callback(store);
+        document.addEventListener(EVENT_STATE_CHANGE, this._listener, false);
+        if (notifyCurrent) {
+            dispatch(EVENT_CURRENT_INFO_REQUESTED, { callback: callback });
         }
-        return {
-            offStateChange: function() {
-                document.removeEventListener(STATE_CHANGE_EVENT, func, false);
-            }
-        }
-    }
+    };
 
-    function login() {
+    AuthenticationObserver.prototype.disconnect = function disconnect () {
+        document.removeEventListener(EVENT_STATE_CHANGE, this._listener, false);
+    };
+
+    async function login() {
         var promise = promiseState([STATE_AUTHENTICATED]);
-        dispatch(LOGIN_REQUESTED_EVENT);
+        dispatch(EVENT_LOGIN_REQUESTED);
         return promise;
     }
 
-    function logout() {
+    async function logout() {
         var promise = promiseState([STATE_UNAUTHENTICATED]);
-        dispatch(LOGOUT_REQUESTED_EVENT);
+        dispatch(EVENT_LOGOUT_REQUESTED);
         return promise;
     }
 
     function promiseState(desiredStates) {
         if (!window.Promise) {
-            return null;
+            return {then: function () {}, catch: function () {}, finally: function () {}};
         }
         return new Promise(function (resolve, reject) {
-            var observer = onStateChange(function (ref) {
+            var observer = new AuthenticationObserver(function (ref) {
                 var state = ref.state;
                 var token = ref.token;
                 var user = ref.user;
@@ -78,8 +70,8 @@ var ByuUserInfoOAuth = (function () {
                     reject(error);
                     observer.offStateChange();
                 } else if (desiredStates.indexOf(state) >= 0) {
-                    resolve({state: state, token: token, user: user});
-                    observer.offStateChange();
+                    resolve({ state: state, token: token, user: user });
+                    observer.disconnect();
                 }
             });
         });
@@ -88,7 +80,7 @@ var ByuUserInfoOAuth = (function () {
     function dispatch(name, detail) {
         var event;
         if (typeof window.CustomEvent === 'function') {
-            event = new CustomEvent(name, {detail: detail});
+            event = new CustomEvent(name, { detail: detail });
         } else {
             event = document.createEvent('CustomEvent');
             event.initCustomEvent(name, true, false, detail);
@@ -125,12 +117,13 @@ var ByuUserInfoOAuth = (function () {
             var this$1 = this;
 
             renderEmpty(this);
-            this._observer = onStateChange(function (e) { return this$1.authStateChanged(e); });
+            this._observer = new AuthenticationObserver(function (e) { return this$1.authStateChanged(e); });
         };
 
         ByuUserInfoOAuth.prototype.disconnectedCallback = function disconnectedCallback () {
             if (this._observer) {
-                this._observer.offStateChange();
+                this._observer.disconnect();
+                this._observer = null;
             }
             this._userInfo = null;
         };

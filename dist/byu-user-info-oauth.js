@@ -1,3 +1,12 @@
+const EVENT_PREFIX = 'byu-browser-oauth';
+
+const EVENT_STATE_CHANGE = `${EVENT_PREFIX}-state-changed`;
+const EVENT_LOGIN_REQUESTED = `${EVENT_PREFIX}-login-requested`;
+const EVENT_LOGOUT_REQUESTED = `${EVENT_PREFIX}-logout-requested`;
+const EVENT_CURRENT_INFO_REQUESTED = `${EVENT_PREFIX}-current-info-requested`;
+const STATE_UNAUTHENTICATED = 'unauthenticated';
+const STATE_AUTHENTICATED = 'authenticated';
+
 /*
  * Copyright 2018 Brigham Young University
  *
@@ -14,64 +23,46 @@
  * limitations under the License.
  */
 
-const EVENT_PREFIX = 'byu-browser-oauth';
-
-const STATE_CHANGE_EVENT = `${EVENT_PREFIX}-state-changed`;
-const LOGIN_REQUESTED_EVENT = `${EVENT_PREFIX}-login-requested`;
-const LOGOUT_REQUESTED_EVENT = `${EVENT_PREFIX}-logout-requested`;
-const STATE_REQUESTED_EVENT = `${EVENT_PREFIX}-state-requested`;
-
-const STATE_INDETERMINATE = 'indeterminate';
-const STATE_UNAUTHENTICATED = 'unauthenticated';
-const STATE_AUTHENTICATED = 'authenticated';
-
-let store = {state: STATE_INDETERMINATE};
-
-let observer = onStateChange(detail => {
-    store = detail;
-});
-
-function onStateChange(callback) {
-    const func = function(e) {
-        callback(e.detail);
-    };
-    document.addEventListener(STATE_CHANGE_EVENT, func, false);
-    if (store.state === STATE_INDETERMINATE) {
-        dispatch(STATE_REQUESTED_EVENT, {callback});
-    } else {
-        callback(store);
-    }
-    return {
-        offStateChange: function() {
-            document.removeEventListener(STATE_CHANGE_EVENT, func, false);
+class AuthenticationObserver {
+    constructor(callback, { notifyCurrent = true } = {} ) {
+        this._listener = function (e) {
+            callback(e.detail);
+        };
+        document.addEventListener(EVENT_STATE_CHANGE, this._listener, false);
+        if (notifyCurrent) {
+            dispatch(EVENT_CURRENT_INFO_REQUESTED, { callback });
         }
+    }
+
+    disconnect() {
+        document.removeEventListener(EVENT_STATE_CHANGE, this._listener, false);
     }
 }
 
-function login() {
+async function login() {
     const promise = promiseState([STATE_AUTHENTICATED]);
-    dispatch(LOGIN_REQUESTED_EVENT);
+    dispatch(EVENT_LOGIN_REQUESTED);
     return promise;
 }
 
-function logout() {
+async function logout() {
     const promise = promiseState([STATE_UNAUTHENTICATED]);
-    dispatch(LOGOUT_REQUESTED_EVENT);
+    dispatch(EVENT_LOGOUT_REQUESTED);
     return promise;
 }
 
 function promiseState(desiredStates) {
     if (!window.Promise) {
-        return null;
+        return {then: () => {}, catch: () => {}, finally: () => {}};
     }
     return new Promise((resolve, reject) => {
-        const observer = onStateChange(({state, token, user, error}) => {
+        const observer = new AuthenticationObserver(({ state, token, user, error }) => {
             if (error) {
                 reject(error);
                 observer.offStateChange();
             } else if (desiredStates.indexOf(state) >= 0) {
-                resolve({state, token, user});
-                observer.offStateChange();
+                resolve({ state, token, user });
+                observer.disconnect();
             }
         });
     });
@@ -80,7 +71,7 @@ function promiseState(desiredStates) {
 function dispatch(name, detail) {
     let event;
     if (typeof window.CustomEvent === 'function') {
-        event = new CustomEvent(name, {detail});
+        event = new CustomEvent(name, { detail });
     } else {
         event = document.createEvent('CustomEvent');
         event.initCustomEvent(name, true, false, detail);
@@ -111,17 +102,18 @@ class ByuUserInfoOAuth extends HTMLElement {
 
     connectedCallback() {
         renderEmpty(this);
-        this._observer = onStateChange(e => this.authStateChanged(e));
+        this._observer = new AuthenticationObserver(e => this.authStateChanged(e));
     }
 
     disconnectedCallback() {
         if (this._observer) {
-            this._observer.offStateChange();
+            this._observer.disconnect();
+            this._observer = null;
         }
         this._userInfo = null;
     }
 
-    authStateChanged({state: state$$1, token: token$$1, user: user$$1, error}) {
+    authStateChanged({ state: state$$1, token: token$$1, user: user$$1, error }) {
         const userElement = this._userInfo.querySelector('[slot="user-name"]');
         const hasUserElement = !!userElement;
         if (user$$1) {

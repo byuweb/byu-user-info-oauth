@@ -23,17 +23,18 @@ export default class ByuUserInfoOAuth extends HTMLElement {
 
     connectedCallback() {
         renderEmpty(this);
-        this._observer = authn.onStateChange(e => this.authStateChanged(e));
+        this._observer = new authn.AuthenticationObserver(e => this.authStateChanged(e));
     }
 
     disconnectedCallback() {
         if (this._observer) {
-            this._observer.offStateChange();
+            this._observer.disconnect();
+            this._observer = null;
         }
         this._userInfo = null;
     }
 
-    authStateChanged({state, token, user, error}) {
+    authStateChanged({ state, token, user, error }) {
         const userElement = this._userInfo.querySelector('[slot="user-name"]');
         const hasUserElement = !!userElement;
         if (user) {

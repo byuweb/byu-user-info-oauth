@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@byuweb/browser-oauth@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@byuweb/browser-oauth/-/browser-oauth-0.1.0.tgz#12ac040c171362610fff8e8a60d0cf67ecdc67cb"
+"@byuweb/browser-oauth@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@byuweb/browser-oauth/-/browser-oauth-0.2.0.tgz#984cdd3d5ddf7a2dbdfc00d51420e8a31f85b834"
 
 "@types/acorn@^4.0.3":
   version "4.0.3"
