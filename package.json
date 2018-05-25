@@ -12,7 +12,7 @@
     "start": "live-server --host=localhost --port=8080 --open=demo.html"
   },
   "dependencies": {
-    "@byuweb/browser-oauth": "^0.2.0"
+    "@byuweb/browser-oauth": "^0.3.1"
   },
   "devDependencies": {
     "buble": "^0.19.3",
