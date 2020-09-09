@@ -5,7 +5,7 @@ OAuth Implicit Grant provider for byu-browser-oauth
 
 ```html
 <head>
-    <script type="module" src="https://cdn.byu.edu/byu-user-info-oauth/latest/byu-user-info-oauth.min.mjs"></script>
+    <script type="module" src="https://cdn.byu.edu/byu-user-info-oauth/latest/byu-user-info-oauth.min.js"></script>
     <script nomodule async src="https://cdn.byu.edu/byu-user-info-oauth/latest/byu-user-info-oauth.nomodule.min.js"></script>
     
     <!-- Also import byu-theme-components -->
