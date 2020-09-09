@@ -17,5 +17,5 @@ OAuth Implicit Grant provider for byu-browser-oauth
         <byu-user-info-oauth slot="user"></byu-user-info-oauth>
     </byu-header>
 </body>
-
+ 
 ```
